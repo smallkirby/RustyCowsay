@@ -5,10 +5,10 @@
 /* encoding: utf-8 */
 /* coding: 2spaces */
 
-use std::path;
 use regex::Regex;
-use textwrap;
 use std::io::{self, Read};
+use std::path;
+use textwrap;
 
 const VERSION: &str = "0.0.1";
 
@@ -23,7 +23,9 @@ pub struct Opts {
 }
 
 fn main() {
-  let mut opts = Opts{..Default::default()};
+  let mut opts = Opts {
+    ..Default::default()
+  };
   let msg = parse_opts(&mut opts);
 
   if opts.version {
@@ -34,18 +36,16 @@ fn main() {
     show_help();
     return;
   }
-  if opts.list{
+  if opts.list {
     match list_cowfiles() {
       Ok(_) => return,
       Err(msg) => println!("Err: {}", msg),
     };
   }
   match msg {
-    Some(msg) => {
-      match display(&msg, &opts) {
-        Ok(()) => return,
-        Err(msg) => println!("Err: {}", msg),
-      }
+    Some(msg) => match display(&msg, &opts) {
+      Ok(()) => return,
+      Err(msg) => println!("Err: {}", msg),
     },
     None => {
       let mut buffer = String::new();
@@ -62,27 +62,54 @@ fn main() {
 }
 
 // XXX cowthink is not allowed for now
-pub fn display(msg: &String, opts: &Opts) -> Result<(),String> {
+pub fn display(msg: &String, opts: &Opts) -> Result<(), String> {
   let mut msgnum = msg.split("\n").collect::<Vec<&str>>().len();
-  let maxlen = msg.split("\n").map(|s| s.len()).collect::<Vec<usize>>().iter().max().unwrap().clone();
+  let maxlen = msg
+    .split("\n")
+    .map(|s| s.len())
+    .collect::<Vec<usize>>()
+    .iter()
+    .max()
+    .unwrap()
+    .clone();
   let lines = if msgnum < 2 {
     format!("< {} >\n", msg)
   } else {
     let mut msgs = msg.split("\n").collect::<Vec<&str>>();
-    if msgs[msgnum-1].len() == 0 {
+    if msgs[msgnum - 1].len() == 0 {
       msgs = msgs[..msgnum].into();
       msgnum -= 1;
     }
     [
-      format!("/ {sentence}{spaceright} \\\n", sentence=msgs[0], spaceright=" ".repeat(maxlen-msgs[0].len())),
-      msgs[1..msgnum-1].iter().map(|x| format!("| {sentence}{spaceright} |\n", 
-        sentence = x,
-        spaceright= " ".repeat(maxlen-x.len()),
-      )).collect(),
-      format!("\\ {sentence}{spaceright} /\n", sentence=msgs[msgnum-1], spaceright=" ".repeat(maxlen-msgs[msgnum-1].len())),
-    ].join("")
+      format!(
+        "/ {sentence}{spaceright} \\\n",
+        sentence = msgs[0],
+        spaceright = " ".repeat(maxlen - msgs[0].len())
+      ),
+      msgs[1..msgnum - 1]
+        .iter()
+        .map(|x| {
+          format!(
+            "| {sentence}{spaceright} |\n",
+            sentence = x,
+            spaceright = " ".repeat(maxlen - x.len()),
+          )
+        })
+        .collect(),
+      format!(
+        "\\ {sentence}{spaceright} /\n",
+        sentence = msgs[msgnum - 1],
+        spaceright = " ".repeat(maxlen - msgs[msgnum - 1].len())
+      ),
+    ]
+    .join("")
   };
-  println!(" {}\n{} {}", "_".repeat(maxlen+1), lines, "-".repeat(maxlen+1));
+  println!(
+    " {}\n{} {}",
+    "_".repeat(maxlen + 1),
+    lines,
+    "-".repeat(maxlen + 1)
+  );
 
   // print cow
   print_cow(&opts)
@@ -113,27 +140,34 @@ pub fn print_cow(opts: &Opts) -> Result<(), String> {
   } else {
     return Err(String::from("Cow doesn't here..."));
   };
-  println!("{}", 
-    cow.split("\n").collect::<Vec<&str>>()[1..].join("\n")
-    .replace("$thoughts", thoughts)
-    .replace("$eyes", eyes)
-    .replace("$tongue", tongue)
+  println!(
+    "{}",
+    cow.split("\n").collect::<Vec<&str>>()[1..]
+      .join("\n")
+      .replace("$thoughts", thoughts)
+      .replace("$eyes", eyes)
+      .replace("$tongue", tongue)
   );
   Ok(())
 }
 
 pub fn parse_opts(opts: &mut Opts) -> Option<String> {
-    let app = App::new("rusty-cowsay")
-      .version(VERSION)
-      .arg(Arg::with_name("help")
+  let app = App::new("rusty-cowsay")
+    .version(VERSION)
+    .arg(
+      Arg::with_name("help")
         .short("h")
         .long("help")
-        .help("show help"))
-      .arg(Arg::with_name("version")
+        .help("show help"),
+    )
+    .arg(
+      Arg::with_name("version")
         .short("v")
         .long("version")
-        .help("show version info"))
-      .arg(Arg::with_name("list")
+        .help("show version info"),
+    )
+    .arg(
+      Arg::with_name("list")
         .short("l")
         .long("list")
         .help("list cow files"))
@@ -191,24 +225,24 @@ pub fn list_cowfiles() -> Result<(), String> {
   let mut cows: Vec<String> = vec![];
   for path in cowpath_dir {
     match path {
-      Ok(p) =>  {
+      Ok(p) => {
         if let Some(result) = cowregex.captures(&p.file_name().to_string_lossy()) {
           cows.push(String::from(&result[1]));
         }
-      },
+      }
       Err(_) => println!("(skipping one file)"),
     }
   }
   println!("{}", textwrap::fill(&cows.to_owned().join(" "), 80));
 
-  return Ok(())
+  return Ok(());
 }
 
 #[cfg(test)]
 mod tests {
   #[test]
   fn default_oneline_cowsay() {
-    let opts = super::Opts{
+    let opts = super::Opts {
       help: false,
       version: false,
       list: false,
