@@ -194,3 +194,17 @@ pub fn list_cowfiles() -> Result<(), String> {
 
   return Ok(())
 }
+
+#[cfg(test)]
+mod tests {
+  #[test]
+  fn default_oneline_cowsay() {
+    let opts = super::Opts{
+      help: false,
+      version: false,
+      list: false,
+    };
+    let msg = String::from("waiwai");
+    assert_eq!((), super::display(&msg, &opts).unwrap());
+  }
+}
