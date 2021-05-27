@@ -19,6 +19,7 @@ pub struct Opts {
   help: bool,
   version: bool,
   list: bool,
+  mora: bool,
 }
 
 fn main() {
@@ -102,7 +103,11 @@ pub fn print_cow(opts: &Opts) -> Result<(), String> {
     [cwd.as_os_str().to_str().unwrap(), "cows"].iter().collect()
   };
 
-  cowpath.push("bong.cow"); // XXX default only for now
+  if opts.mora {
+    cowpath.push("mora.cow");
+  } else {
+    cowpath.push("bong.cow"); // XXX
+  }
   let cow = if let Ok(cow) = std::fs::read_to_string(cowpath){
     cow 
   } else {
@@ -145,6 +150,10 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
     }
     if matches.is_present("list") {
       opts.list = true;
+    }
+    let args: Vec<String> = std::env::args().collect();
+    if path::Path::new(&args[0]).file_name().unwrap().to_os_string().to_str().unwrap() == "morasay" {
+      opts.mora = true;
     }
     if let Some(msgs) = matches.values_of("msg") {
       //Some(msgs.join())
@@ -203,6 +212,8 @@ mod tests {
       help: false,
       version: false,
       list: false,
+      mora: false,
+      ..Default::default()
     };
     let msg = String::from("waiwai");
     assert_eq!((), super::display(&msg, &opts).unwrap());
