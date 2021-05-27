@@ -23,6 +23,6 @@ $ COWPATH=$HOME/Documents/rusty-cowsay/cows ./morasay < ./test.c
        \
          /  ----   ---- \
         (    ===    ===  )
-        (   \=/    \=/   )
+        (    \=/    \=/  )
          \ @  _______ @  /
 ```
