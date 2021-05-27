@@ -135,8 +135,8 @@ pub fn print_cow(opts: &Opts) -> Result<(), String> {
   } else {
     cowpath.push("bong.cow"); // XXX
   }
-  let cow = if let Ok(cow) = std::fs::read_to_string(cowpath){
-    cow 
+  let cow = if let Ok(cow) = std::fs::read_to_string(cowpath) {
+    cow
   } else {
     return Err(String::from("Cow doesn't here..."));
   };
@@ -170,31 +170,37 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
       Arg::with_name("list")
         .short("l")
         .long("list")
-        .help("list cow files"))
-      .arg(Arg::with_name("msg")
-        .multiple(true)
-        .help("message"));
-    let matches = app.get_matches();
+        .help("list cow files"),
+    )
+    .arg(Arg::with_name("msg").multiple(true).help("message"));
+  let matches = app.get_matches();
 
-    if matches.is_present("help") {
-      opts.help = true;
-    }
-    if matches.is_present("version") {
-      opts.version = true;
-    }
-    if matches.is_present("list") {
-      opts.list = true;
-    }
-    let args: Vec<String> = std::env::args().collect();
-    if path::Path::new(&args[0]).file_name().unwrap().to_os_string().to_str().unwrap() == "morasay" {
-      opts.mora = true;
-    }
-    if let Some(msgs) = matches.values_of("msg") {
-      //Some(msgs.join())
-      Some(msgs.collect::<Vec<&str>>().join(" "))
-    } else {
-      None
-    }
+  if matches.is_present("help") {
+    opts.help = true;
+  }
+  if matches.is_present("version") {
+    opts.version = true;
+  }
+  if matches.is_present("list") {
+    opts.list = true;
+  }
+  let args: Vec<String> = std::env::args().collect();
+  if path::Path::new(&args[0])
+    .file_name()
+    .unwrap()
+    .to_os_string()
+    .to_str()
+    .unwrap()
+    == "morasay"
+  {
+    opts.mora = true;
+  }
+  if let Some(msgs) = matches.values_of("msg") {
+    //Some(msgs.join())
+    Some(msgs.collect::<Vec<&str>>().join(" "))
+  } else {
+    None
+  }
 }
 
 pub fn show_version_credit() {
