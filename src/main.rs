@@ -188,7 +188,6 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
   if path::Path::new(&args[0])
     .file_name()
     .unwrap()
-    .to_os_string()
     .to_str()
     .unwrap()
     == "morasay"
