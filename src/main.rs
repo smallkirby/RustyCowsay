@@ -20,6 +20,7 @@ pub struct Opts {
   version: bool,
   list: bool,
   mora: bool,
+  think: bool,
 }
 
 fn main() {
@@ -61,7 +62,6 @@ fn main() {
   };
 }
 
-// XXX cowthink is not allowed for now
 pub fn display(msg: &String, opts: &Opts) -> Result<(), String> {
   let mut msgnum = msg.split("\n").collect::<Vec<&str>>().len();
   let maxlen: usize = msg.split("\n").map(|s| s.len()).max().unwrap();
@@ -113,7 +113,7 @@ pub fn print_cow(opts: &Opts) -> Result<(), String> {
   // XXX not imp
   let eyes = "oo";
   let tongue = "U";
-  let thoughts = "\\";
+  let thoughts = if opts.think { "o" } else { "\\" };
 
   // print cow
   let cwd = std::env::current_dir().unwrap();
@@ -186,6 +186,14 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
     == "morasay"
   {
     opts.mora = true;
+  } else if path::Path::new(&args[0])
+    .file_name()
+    .unwrap()
+    .to_str()
+    .unwrap()
+    == "cowthink"
+  {
+    opts.think = true;
   }
   if let Some(msgs) = matches.values_of("msg") {
     //Some(msgs.join())
