@@ -22,6 +22,14 @@ pub struct Opts {
   mora: bool,
   think: bool,
   which: Option<String>,
+  borg: bool,
+  dead: bool,
+  greedy: bool,
+  paranoid: bool,
+  stoned: bool,
+  tired: bool,
+  wired: bool,
+  young: bool,
 }
 
 fn main() {
@@ -111,9 +119,32 @@ pub fn display(msg: &String, opts: &Opts) -> Result<(), String> {
 
 pub fn print_cow(opts: &Opts) -> Result<(), String> {
   // construct face
-  // XXX not imp
-  let eyes = "oo";
-  let tongue = "U";
+  let eyes = if opts.borg {
+    "=="
+  } else if opts.dead {
+    "xx"
+  } else if opts.greedy {
+    "$$"
+  } else if opts.paranoid {
+    "@@"
+  } else if opts.stoned {
+    "**"
+  } else if opts.tired {
+    "--"
+  } else if opts.wired {
+    "OO"
+  } else if opts.young {
+    ".."
+  } else {
+    "oo"
+  };
+  let tongue = if opts.dead {
+    "U"
+  } else if opts.stoned {
+    "U"
+  } else {
+    ""
+  };
   let thoughts = if opts.think { "o" } else { "\\" };
 
   // print cow
@@ -167,6 +198,54 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
         .help("show version info"),
     )
     .arg(
+      Arg::with_name("borg")
+        .short("b")
+        .long("borg")
+        .help("borg eye"),
+    )
+    .arg(
+      Arg::with_name("dead")
+        .short("d")
+        .long("dead")
+        .help("dead eye and tongue"),
+    )
+    .arg(
+      Arg::with_name("greedy")
+        .short("g")
+        .long("greedy")
+        .help("greedy eye"),
+    )
+    .arg(
+      Arg::with_name("paranoid")
+        .short("p")
+        .long("paranoid")
+        .help("paranoid eye"),
+    )
+    .arg(
+      Arg::with_name("stoned")
+        .short("s")
+        .long("stoned")
+        .help("stoned eye and tongue"),
+    )
+    .arg(
+      Arg::with_name("tired")
+        .short("t")
+        .long("tired")
+        .help("tired eye"),
+    )
+    .arg(
+      Arg::with_name("wired")
+        .short("w")
+        .long("wired")
+        .help("wired eye"),
+    )
+    .arg(
+      Arg::with_name("young")
+        .short("y")
+        .long("young")
+        .help("young eye"),
+    )
+    .arg(
       Arg::with_name("file")
         .short("f")
         .long("file")
@@ -190,6 +269,30 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
   }
   if matches.is_present("list") {
     opts.list = true;
+  }
+  if matches.is_present("borg") {
+    opts.borg = true;
+  }
+  if matches.is_present("dead") {
+    opts.dead = true;
+  }
+  if matches.is_present("greedy") {
+    opts.greedy = true;
+  }
+  if matches.is_present("paranoid") {
+    opts.paranoid = true;
+  }
+  if matches.is_present("greedy") {
+    opts.greedy = true;
+  }
+  if matches.is_present("tired") {
+    opts.tired = true;
+  }
+  if matches.is_present("wired") {
+    opts.wired = true;
+  }
+  if matches.is_present("young") {
+    opts.young = true;
   }
   if let Some(file) = matches.value_of("file") {
     opts.which = Some(String::from(file));
@@ -227,7 +330,7 @@ pub fn show_version_credit() {
 
 pub fn show_help() {
   show_version_credit();
-  println!("Usage: cowsay [-h, --help] [-v --version] [message]");
+  println!("Usage: cowsay [-h, --help] [-v --version] [message]"); // XXX should rely on clap?
 }
 
 pub fn list_cowfiles() -> Result<(), String> {
