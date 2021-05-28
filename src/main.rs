@@ -6,7 +6,7 @@
 /* coding: 2spaces */
 
 use regex::Regex;
-use std::io::{self, Read};
+use std::io::Read;
 use std::path;
 use textwrap;
 
@@ -21,6 +21,7 @@ pub struct Opts {
   list: bool,
   mora: bool,
   think: bool,
+  which: Option<String>,
 }
 
 fn main() {
@@ -125,8 +126,14 @@ pub fn print_cow(opts: &Opts) -> Result<(), String> {
 
   if opts.mora {
     cowpath.push("mora.cow");
+  } else if let Some(file) = &opts.which {
+    let cowfile = &Regex::new(r"^(.+)(\.cow)?$")
+      .unwrap()
+      .captures(file)
+      .unwrap()[1];
+    cowpath.push(format!("{}.cow", cowfile));
   } else {
-    cowpath.push("bong.cow"); // XXX
+    cowpath.push("bong.cow");
   }
   let cow = if let Ok(cow) = std::fs::read_to_string(cowpath) {
     cow
@@ -160,6 +167,13 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
         .help("show version info"),
     )
     .arg(
+      Arg::with_name("file")
+        .short("f")
+        .long("file")
+        .takes_value(true)
+        .help("select which cow to use"),
+    )
+    .arg(
       Arg::with_name("list")
         .short("l")
         .long("list")
@@ -177,6 +191,9 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
   if matches.is_present("list") {
     opts.list = true;
   }
+  if let Some(file) = matches.value_of("file") {
+    opts.which = Some(String::from(file));
+  };
   let args: Vec<String> = std::env::args().collect();
   if path::Path::new(&args[0])
     .file_name()
