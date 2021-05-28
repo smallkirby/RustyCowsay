@@ -64,14 +64,7 @@ fn main() {
 // XXX cowthink is not allowed for now
 pub fn display(msg: &String, opts: &Opts) -> Result<(), String> {
   let mut msgnum = msg.split("\n").collect::<Vec<&str>>().len();
-  let maxlen = msg
-    .split("\n")
-    .map(|s| s.len())
-    .collect::<Vec<usize>>()
-    .iter()
-    .max()
-    .unwrap()
-    .clone();
+  let maxlen: usize = msg.split("\n").map(|s| s.len()).max().unwrap();
   let lines = if msgnum < 2 {
     format!("< {} >\n", msg)
   } else {
