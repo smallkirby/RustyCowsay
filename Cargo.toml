@@ -3,6 +3,7 @@ name = "rusty-cowsay"
 version = "0.1.0"
 authors = ["Nirugiri, Original version by (c) Tony Monroe"]
 edition = "2018"
+build = "build.rs"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -10,3 +11,6 @@ edition = "2018"
 clap = "2.33.3"
 regex = "1.5.4"
 textwrap = "0.13.4"
+
+[build-dependencies]
+clap = "2.20.3"
