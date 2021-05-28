@@ -30,6 +30,8 @@ pub struct Opts {
   tired: bool,
   wired: bool,
   young: bool,
+  tongue: Option<String>,
+  eyes: Option<String>,
 }
 
 fn main() {
@@ -119,31 +121,42 @@ pub fn display(msg: &String, opts: &Opts) -> Result<(), String> {
 
 pub fn print_cow(opts: &Opts) -> Result<(), String> {
   // construct face
-  let eyes = if opts.borg {
-    "=="
+  let eyes = if let Some(t) = &opts.eyes {
+    match t.len() {
+      1 => String::from(format!("{}{}", t, t)),
+      2 => String::from(t),
+      _ => String::from(&t[0..=2]),
+    }
+  } else if opts.borg {
+    String::from("==")
   } else if opts.dead {
-    "xx"
+    String::from("xx")
   } else if opts.greedy {
-    "$$"
+    String::from("$$")
   } else if opts.paranoid {
-    "@@"
+    String::from("@@")
   } else if opts.stoned {
-    "**"
+    String::from("**")
   } else if opts.tired {
-    "--"
+    String::from("--")
   } else if opts.wired {
-    "OO"
+    String::from("OO")
   } else if opts.young {
-    ".."
+    String::from("..")
   } else {
-    "oo"
+    String::from("oo")
   };
-  let tongue = if opts.dead {
-    "U"
+  let tongue = if let Some(t) = &opts.tongue {
+    match t.len() {
+      1 => String::from(t),
+      _ => String::from(&t[0..=0]),
+    }
+  } else if opts.dead {
+    String::from("U")
   } else if opts.stoned {
-    "U"
+    String::from("U")
   } else {
-    ""
+    String::from(" ")
   };
   let thoughts = if opts.think { "o" } else { "\\" };
 
@@ -176,8 +189,8 @@ pub fn print_cow(opts: &Opts) -> Result<(), String> {
     cow.split("\n").collect::<Vec<&str>>()[1..]
       .join("\n")
       .replace("$thoughts", thoughts)
-      .replace("$eyes", eyes)
-      .replace("$tongue", tongue)
+      .replace("$eyes", &eyes)
+      .replace("$tongue", &tongue)
   );
   Ok(())
 }
@@ -246,6 +259,20 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
         .help("young eye"),
     )
     .arg(
+      Arg::with_name("tongue")
+        .short("T")
+        .long("tongue")
+        .takes_value(true)
+        .help("specify tongue"),
+    )
+    .arg(
+      Arg::with_name("eyes")
+        .short("e")
+        .long("eyes")
+        .takes_value(true)
+        .help("specify eyes"),
+    )
+    .arg(
       Arg::with_name("file")
         .short("f")
         .long("file")
@@ -294,6 +321,12 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
   if matches.is_present("young") {
     opts.young = true;
   }
+  if let Some(tongue) = matches.value_of("tongue") {
+    opts.tongue = Some(String::from(tongue));
+  };
+  if let Some(eyes) = matches.value_of("eyes") {
+    opts.eyes = Some(String::from(eyes));
+  };
   if let Some(file) = matches.value_of("file") {
     opts.which = Some(String::from(file));
   };
