@@ -30,6 +30,7 @@ pub struct Opts {
   young: bool,
   tongue: Option<String>,
   eyes: Option<String>,
+  wrap_cols: usize,
 }
 
 fn main() {
@@ -64,16 +65,24 @@ fn main() {
 }
 
 pub fn display(msg: &String, opts: &Opts) -> Result<(), String> {
-  let mut msgnum = msg.split("\n").collect::<Vec<&str>>().len();
-  let maxlen: usize = msg.split("\n").map(|s| s.len()).max().unwrap();
+  let mut msgs: Vec<String> = vec![];
+  let _ = msg
+    .split("\n")
+    .map(|m| {
+      let mut s = String::from(m);
+      while !s.is_empty() {
+        let (chunk, rest) = s.split_at(std::cmp::min(From::from(opts.wrap_cols), s.len()));
+        msgs.push(String::from(chunk));
+        s = String::from(rest);
+      }
+    })
+    .collect::<Vec<_>>();
+  let msgnum = msgs.len();
+  let maxlen: usize = msgs.iter().map(|s| s.len()).max().unwrap();
+
   let lines = if msgnum < 2 {
     format!("< {} >\n", msg)
   } else {
-    let mut msgs = msg.split("\n").collect::<Vec<&str>>();
-    if msgs[msgnum - 1].len() == 0 {
-      msgs = msgs[..msgnum].into();
-      msgnum -= 1;
-    }
     [
       format!(
         "/ {sentence}{spaceright} \\\n",
@@ -259,6 +268,14 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
         .help("select which cow to use"),
     )
     .arg(
+      Arg::with_name("wrapcols")
+        .short("W")
+        .long("wrapcols")
+        .takes_value(true)
+        .validator(validator_wrapcols)
+        .help("column num to wrap line"),
+    )
+    .arg(
       Arg::with_name("list")
         .short("l")
         .long("list")
@@ -308,6 +325,11 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
   };
   if let Some(file) = matches.value_of("file") {
     opts.which = Some(String::from(file));
+  };
+  if let Some(w) = matches.value_of("wrapcols") {
+    opts.wrap_cols = w.parse::<usize>().unwrap()
+  } else {
+    opts.wrap_cols = 80
   };
   let args: Vec<String> = std::env::args().collect();
   if path::Path::new(&args[0])
@@ -364,6 +386,17 @@ pub fn list_cowfiles() -> Result<(), String> {
   println!("{}", textwrap::fill(&cows.to_owned().join(" "), 80));
 
   return Ok(());
+}
+
+fn validator_wrapcols(s: String) -> Result<(), String> {
+  let n = s
+    .parse::<usize>()
+    .expect("-W option takes integer larger than 0");
+  if n <= 0 {
+    Err(String::from("-W option takes integer larger than 0"))
+  } else {
+    Ok(())
+  }
 }
 
 #[cfg(test)]
