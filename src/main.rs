@@ -408,6 +408,7 @@ mod tests {
       version: false,
       list: false,
       mora: false,
+      wrap_cols: 80,
       ..Default::default()
     };
     let msg = String::from("waiwai");
