@@ -10,8 +10,6 @@ use std::io::Read;
 use std::path;
 use textwrap;
 
-const VERSION: &str = "0.0.1";
-
 use clap::{App, Arg};
 
 #[derive(Default, Debug)]
@@ -40,14 +38,6 @@ fn main() {
   };
   let msg = parse_opts(&mut opts);
 
-  if opts.version {
-    show_version_credit();
-    return;
-  }
-  if opts.help {
-    show_help();
-    return;
-  }
   if opts.list {
     match list_cowfiles() {
       Ok(_) => return,
@@ -67,7 +57,7 @@ fn main() {
           Ok(()) => return,
           Err(msg) => println!("Err: {}", msg),
         },
-        Err(_) => show_help(),
+        Err(_) => println!("Use --help option to show usage"),
       }
     }
   };
@@ -196,20 +186,9 @@ pub fn print_cow(opts: &Opts) -> Result<(), String> {
 }
 
 pub fn parse_opts(opts: &mut Opts) -> Option<String> {
-  let app = App::new("rusty-cowsay")
-    .version(VERSION)
-    .arg(
-      Arg::with_name("help")
-        .short("h")
-        .long("help")
-        .help("show help"),
-    )
-    .arg(
-      Arg::with_name("version")
-        .short("v")
-        .long("version")
-        .help("show version info"),
-    )
+  let app = App::new("rusty cow{{say,think}}")
+    .version(env!("CARGO_PKG_VERSION"))
+    .author("(c) 2021 Nirugiri, Original version by (c) 1999 Tony Monroe")
     .arg(
       Arg::with_name("borg")
         .short("b")
@@ -354,16 +333,6 @@ pub fn parse_opts(opts: &mut Opts) -> Option<String> {
   } else {
     None
   }
-}
-
-pub fn show_version_credit() {
-  println!("cow{{say,think}} version {}, (c) 2021 Nirugiri", VERSION);
-  println!("Original version by (c) 1999 Tony Monroe");
-}
-
-pub fn show_help() {
-  show_version_credit();
-  println!("Usage: cowsay [-h, --help] [-v --version] [message]"); // XXX should rely on clap?
 }
 
 pub fn list_cowfiles() -> Result<(), String> {
