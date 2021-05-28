@@ -29,7 +29,8 @@ $ COWPATH=$HOME/Documents/rusty-cowsay/cows ./morasay < ./test.c
 
   
 # build & install
-Below command would generate binary named `rusty-cowsay` and install it in `/usr/bin/` directory. Also, it generate bash-completion script and install it in `/usr/share/bash-completion/completions/`.
+Below command would generate binary named `rusty-cowsay` and install it in `/usr/bin/` directory.   
+Also, it generate bash-completion script and install it in `/usr/share/bash-completion/completions/`.
 ```install.sh
 git clone https://github.com/smallkirby/RustyCowsay
 cd RustyCowsay && bash ./install.sh
